@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Language</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <style>
+        *{
+            margin-top: 1px;
+        }
+        body {
+            background-color: black;
+            color: white;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        body::-webkit-scrollbar {
+            display: none; /* 对Chrome和Safari有效 */
+        }
+        .checkboxes label {
+            margin-right: 10px;
+        }
+        svg {
+            margin: 5px;
+            height: 300px;
+        }
+        text {
+            fill: white;
+            font-size: 14px;
+            text-anchor: middle;
+        }
+        h1 {
+            color: white;
+            margin: 5px;
+            font-size: 32px;
+        }
+        h1 a {
+            text-decoration: none;
+            color: white;
+        }
+        .menu {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            align-items:center;
+        }
+        #rightmenu {
+            margin-right: 3px;
+        }
+        #rightmenu a {
+            text-decoration: none;
+            color: white;
+            font-size: 18px;
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 10px;
+        }
+        span {
+            color: white;
+        }
+        .label-container {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 10px; 
+            font-size: 14px;
+        }
+
+    </style>
+</head>
+<body>
+    <div>
+        <div class="menu">
+            <div id="leftmenu">
+                <h1><a href="application.html">The Sign of the City</a></h1>
+            </div>
+            <div id="rightmenu">
+                <a href="index.html">About</a>
+                <span>‧</span>
+                <a href="sign_category.html">Sign Category</a>
+                <span>‧</span>
+                <a href="sign_language.html">Sign Language</a>
+                <span>‧</span>
+                <a href="sign_content.html">Sign Content</a>
+            </div>
+            </div>
+        <div id="checkboxes" class="checkboxes"></div>
+    </div>
+<script>
+const csvFilePath = 'route-data-overall_final_subweb.csv';
+
+const languageColors = {
+    'English': '#e81e63',
+    'Spanish': '#8bc34a',
+    'Chinese': '#3f51b5',
+    'Italian': '#00bcd4',
+    'French': '#009688',
+    'Korean': '#cddc39',
+    'Russian': '#ffc107',
+};
+
+d3.csv(csvFilePath).then(function(data) {
+    let expandedData = data.flatMap(d => 
+        d['Language-full'].split(';').map(language => ({...d, 'Language': language.trim()}))
+    );
+
+        // 使用Set来收集唯一的社区名称
+        let communityNames = new Set(expandedData.map(d => d.NTAName));
+
+        // 生成复选框
+        const languages = Object.keys(languageColors);
+        const checkboxesDiv = d3.select("#checkboxes");
+        languages.forEach(language => {
+            const label = checkboxesDiv.append("div")  // 使用 div 代替 label，因为我们要自定义布局
+                .attr("class", "label-container");  // 应用刚才定义的 CSS 类
+
+            const imagePath = `images/${language.toLowerCase()}.png`;
+
+            label.append("img")
+                .attr("src", imagePath)
+                .attr("alt", `${language} logo`)
+                .style("height", "30px")
+                .style("display", "block");
+
+            const inputContainer = label.append("div");  // 为复选框和文字创建一个新的 div 容器
+
+            inputContainer.append("input")
+                .attr("type", "checkbox")
+                .attr("value", language)
+                .attr("checked", true)
+                .on("change", () => drawCharts(expandedData, languageColors));
+
+            inputContainer.append("span")
+                .text(language);
+        });
+
+
+    drawCharts(expandedData, languageColors);
+});
+
+function drawCharts(expandedData, languageColors) {
+    // 获取所有选中的语言
+    const selectedLanguages = [];
+    d3.selectAll("#checkboxes input[type=checkbox]:checked").each(function() {
+        selectedLanguages.push(this.value);
+    });
+
+    // 清除旧的SVG
+    d3.selectAll("svg").remove();
+
+    // 使用预定义的社区列表来保证所有社区都会被渲染
+    const predefinedCommunities = [
+        "Midtown-Times Square",
+        "Midtown South-Flatiron-Union Square",
+        "Greenwich Village",
+        "East Village",
+        "SoHo-Little Italy-Hudson Square",
+        "Lower East Side",
+        "Chinatown-Two Bridges",
+        "Downtown Brooklyn-DUMBO-Boerum Hill",
+        "Fort Greene",
+        "Park Slope",
+        "Prospect Heights",
+        "Prospect Park",
+        "Prospect Lefferts Gardens-Wingate",
+        "Flatbush",
+        "East Flatbush-Erasmus",
+        "Holy Cross Cemetery",
+        "East Flatbush-Rugby",
+        "East Flatbush-Remsen Village",
+        "Brownsville",
+        "Ocean Hill",
+        "East New York (North)",
+        "Cypress Hills",
+        "Highland Park-Cypress Hills Cemeteries (South)",
+        "Woodhaven",
+        "Richmond Hill",
+        "Kew Gardens",
+        "Jamaica Hills-Briarwood",
+        "Kew Gardens Hills",
+        "Queensboro Hill",
+        "Flushing-Willets Point",
+        "Whitestone-Beechhurst",
+        "Ferry Point Park-St. Raymond Cemetery",
+        "Castle Hill-Unionport",
+        "Westchester Square",
+        "Parkchester",
+        "Pelham Parkway-Van Nest",
+        "Morris Park",
+        "West Farms",
+        "Crotona Park East",
+        "Morrisania",
+        "Melrose",
+        "Mott Haven-Port Morris",
+        "East Harlem (North)",
+        "East Harlem (South)",
+        "Central Park",
+        "Upper East Side-Carnegie Hill"
+    ];
+
+    predefinedCommunities.forEach((communityName) => {
+        let communityData = expandedData.filter(d => d.NTAName === communityName && selectedLanguages.includes(d.Language));
+
+        let languageCounts = d3.rollup(communityData, v => v.length, d => d.Language);
+
+        let stack = [];
+        let y0 = 0;
+        languageCounts.forEach((count, language) => {
+            stack.push({ language, y0, y1: y0 += count });
+        });
+
+        const svgHeight = 300;
+        const svgWidth = 200;
+        let svg = d3.select('body').append('svg')
+            .attr('width', svgWidth)
+            .attr('height', svgHeight)
+            .style('background-color', 'black')
+            .append('g');
+
+        svg.append('text')
+            .attr('x', svgWidth / 2)
+            .attr('y', 20)
+            .text(communityName);
+
+        let rects = svg.selectAll('rect')
+            .data(stack, d => d.language);
+
+        // 使用过渡动画更新矩形
+        rects.enter().append('rect')
+            .attr('x', 0)
+            .attr('y', d => svgHeight)
+            .attr('width', svgWidth)
+            .attr('height', 0)
+            .attr('fill', d => languageColors[d.language])
+            .merge(rects) // 合并 enter 和 update 选择集
+            .transition() // 开始一个过渡
+            .duration(1000) // 过渡持续时间
+            .attr('y', d => svgHeight - (d.y1 - d.y0))
+            .attr('height', d => d.y1 - d.y0);
+
+        // 处理退出的元素
+        rects.exit()
+            .transition() // 开始一个过渡
+            .duration(1000) // 过渡持续时间
+            .attr('y', svgHeight)
+            .attr('height', 0)
+            .remove(); // 在过渡结束时删除元素
+    });
+}
+</script>
+</body>
+</html>

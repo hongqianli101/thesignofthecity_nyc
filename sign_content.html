@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Content</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <style>
+        *{
+            margin-top: 1px;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000000;
+        }
+        body::-webkit-scrollbar {
+            display: none; /* 对Chrome和Safari有效 */
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .community {
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* 水平居中 */
+            margin: 5px;
+            width: 200px;
+            height: 300px;
+            text-align: center;
+            position: relative; /* 设置为相对定位，为.word提供定位上下文 */
+        }
+        .word {
+            font-size: 10px; /* This will be overridden by inline styles */
+            transition: font-size 0.5s; /* Smooth transition for font size changes */
+            color: white;
+            position: absolute; /* 绝对定位 */
+            top: 50%; /* 上下居中 */
+            left: 50%; /* 左右居中 */
+            transform: translate(-50%, -50%); /* 修正定位 */
+        }
+        h1 {
+            color: white;
+            margin: 5px;
+            font-size: 32px;
+        }
+        .checkbox-container {
+            color: white;
+            position: relative;
+        }
+        h1 a {
+            text-decoration: none;
+            color: white;
+        }
+        .menu {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            align-items:center;
+        }
+        #rightmenu {
+            margin-right: 3px;
+        }
+        #rightmenu a {
+            text-decoration: none;
+            color: white;
+            font-size: 18px;
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 10px;
+        }
+        span {
+            color: white;
+        }
+        .label-container {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 10px; 
+            color: white;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="menu">
+    <div id="leftmenu">
+        <h1><a href="application.html">The Sign of the City</a></h1>
+    </div>
+    <div id="rightmenu">
+        <a href="index.html">About</a>
+            <span>‧</span>
+        <a href="sign_category.html">Sign Category</a>
+        <span>‧</span>
+        <a href="sign_language.html">Sign Language</a>
+        <span>‧</span>
+        <a href="sign_content.html">Sign Content</a>
+    </div>
+    </div>
+    <div class="label-container">
+        <img src="images/1.png" style="height: 30px;">
+        <label><input type="radio" name="word-set" value="1" checked>Top 1 Word</label>
+    </div>
+    <div class="label-container">
+        <img src="images/2.png" style="height: 30px;">
+        <label><input type="radio" name="word-set" value="2">Top 2 Word</label>
+    </div>
+    <div class="label-container">
+        <img src="images/3.png" style="height: 30px;">
+        <label><input type="radio" name="word-set" value="3">Top 3 Word</label>
+    </div>
+    <div class="label-container">
+        <img src="images/4.png" style="height: 30px;">
+        <label><input type="radio" name="word-set" value="4">Top 4 Word</label>
+    </div>
+    <div class="label-container">
+        <img src="images/5.png" style="height: 30px;">
+        <label><input type="radio" name="word-set" value="5">Top 5 Word</label>
+    </div>
+    <div class="container" id="container"></div>
+
+    <script>
+        const levelColors = {
+            1: '#FF5622', // most negative
+            2: '#02A9F5', // negative
+            3: '#A7A7A7', // neutral
+            4: '#FEC009', // positive
+            5: '#FF5622'  // most positive
+        };
+
+        const container = d3.select('#container');
+
+        // Function to update the community signs based on selected word set and occurrence frequency for font size
+        function updateCommunitySigns(selectedSet) {
+    d3.csv('top_5_words_by_community_with_levels.csv').then(function(data) {
+        // 处理数据
+        data.forEach(d => {
+            d['occurrence-' + selectedSet] = +d['occurrence-' + selectedSet]; // 字符串转数字
+            d['level-' + selectedSet] = +d['level-' + selectedSet];
+        });
+
+        // 绑定数据
+        const communities = container.selectAll('.community').data(data, d => d.NTAName);
+
+        // 移除多余的元素
+        communities.exit()
+            .transition()
+            .duration(100)
+            .style('opacity', 0)
+            .remove();
+
+        // 添加新元素
+        const newCommunities = communities.enter().append('div')
+            .attr('class', 'community')
+            .style('opacity', 0);
+
+        newCommunities.append('p')
+            .text(d => d.NTAName)
+            .style('color', 'white')
+            .style('font-size', '14px');
+
+        newCommunities.append('div')
+            .attr('class', 'word');
+
+        newCommunities.transition()
+            .duration(1000)
+            .style('opacity', 1);
+
+        // 更新所有社区的单词和颜色
+        container.selectAll('.community .word')
+            .data(data, d => d.NTAName)
+            .text(d => d['word-' + selectedSet])
+            .transition() // 使用过渡效果
+            .duration(100)
+            .style('font-size', d => `${Math.max(10, d['occurrence-' + selectedSet] * 5)}px`)
+            .style('color', d => levelColors[d['level-' + selectedSet]] || 'black');
+    }).catch(function(error) {
+        console.log(error);
+    });
+}
+
+// 初始显示
+updateCommunitySigns('1');
+
+// 处理单选按钮变化
+d3.selectAll('input[name="word-set"]').on('change', function() {
+    updateCommunitySigns(this.value);
+});
+
+    </script>
+</body>
+</html>

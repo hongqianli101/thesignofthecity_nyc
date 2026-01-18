@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>The Sign of the City</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="menu">
+    <div id="leftmenu">
+        <h1><a href="application.html">The Sign of the City</a></h1>
+    <select id="languageDropdown">
+        <option value="All">All Languages</option>
+        <option value="English">English</option>
+        <option value="Non-English">Non-English</option>
+        <option value="Spanish">Spanish</option>
+        <option value="Chinese">Chinese</option>
+        <option value="Italian">Italian</option>
+        <option value="French">French</option>
+        <option value="Korean">Korean</option>
+        <option value="Russian">Russian</option>
+        <option value="Bengali">Bengali</option>
+        <option value="Haitian Creole">Haitian Creole</option>
+    </select>
+    <select id="categoryDropdown">
+        <option value="All Categories">All Categories</option>
+        <option value="Brand Sign">Brand Sign</option>
+        <option value="Street Name Sign">Street Name Sign</option>
+        <option value="Building Information Sign">Building Information Sign</option>
+        <option value="Bus Stop Sign">Bus Stop Sign</option>
+        <option value="Parking Regulation Sign">Parking Regulation Sign</option>
+        <option value="Scaffold Sign">Scaffold Sign</option>
+        <option value="One Way Sign">One Way Sign</option>
+        <option value="Advertising Sign">Advertising Sign</option>
+        <option value="For Lease Sign">For Lease Sign</option>
+        <option value="Do Not Enter Sign">Do Not Enter Sign</option>
+        <option value="Speed Limit Sign">Speed Limit Sign</option>
+        <option value="Promotion Sign">Promotion Sign</option>
+        <option value="Direction Sign">Direction Sign</option>
+        <option value="Subway Sign">Subway Sign</option>
+        <option value="Touristic Sign">Touristic Sign</option>
+        <option value="Shop Information Sign">Shop Information Sign</option>
+        <option value="Street Close Sign">Street Close Sign</option>
+        <option value="School Crossing Sign">School Crossing Sign</option>
+        <option value="All Traffic Sign">All Traffic Sign</option>
+        <option value="Don't Block Sign">Don't Block Sign</option>
+    </select>
+    <input type="text" id="searchBar" placeholder="Search text..."><button id="searchButton">Search</button>
+    </div>
+    <div id="rightmenu">
+    <a href="index.html">About</a>
+    <span>‧</span>
+    <a href="sign_category.html">Sign Category</a>
+    <span>‧</span>
+    <a href="sign_language.html">Sign Language</a>
+    <span>‧</span>
+    <a href="sign_content.html">Sign Content</a>
+    </div>
+
+</div>
+<div class ="legend">
+    <img src="data/Legend.png" alt="legend">
+</div>
+    <div id="barcontainer"></div>
+    <script type="text/javascript">
+    let currentScale = 0.6;
+    let baseWidth = 10; 
+    let baseGap = 4; 
+    let width = baseWidth; 
+    let gap = baseGap;
+    let selectedId = null;
+    let data = []; 
+
+    d3.json("data_final.json").then(function(loadedData) {
+        data = loadedData;
+        const expandedWidth = width * 24; 
+        const bars = d3.select("#barcontainer").selectAll(".bar")
+        .data(data)
+        .enter().append("div")
+        .attr("class", "bar")
+        .attr("data-id", d => d.id) 
+        .style("left", (d, i) => `${i * (width + gap)}px`)
+        .style("top", "24px")
+        .style("height", "1000px");
+            bars.each(function(d) {
+            const selection = d3.select(this);
+                selection.append("img").attr("src", d.e_image_s);
+                const firstTextContainer = selection.append("div").attr("class", "text-container");
+                firstTextContainer.append("p").text(d.e_text);
+                selection.append("div").attr("class", "titletext").append("p").text('Category');  
+                selection.append("img").attr("src", d.e_image_c);
+                selection.append("div").attr("class", "titletext").append("p").text('Language');  
+                selection.append("img").attr("src", d.e_image_l);
+                selection.append("div").attr("class", "titletext").append("p").text('Meidan household income');  
+                selection.append("img").attr("src", d.image_h);
+                selection.append("div").attr("class", "titletext").append("p").text('Race');  
+                selection.append("img").attr("src", d.image_d);
+                selection.append("div").attr("class", "titletext").append("p").text('Language'); 
+                selection.append("img").attr("src", d.w_image_l);
+                selection.append("div").attr("class", "titletext").append("p").text('Category');  
+                selection.append("img").attr("src", d.w_image_c);
+                const secondTextContainer = selection.append("div").attr("class", "text-container");
+                secondTextContainer.append("p").text(d.w_text);
+                selection.append("img").attr("src", d.w_image_s);
+                });
+
+
+
+
+////// Function to update which bar is selected and expanded
+                let selectedId = data[0].id; 
+                function selectBar(newId) {
+                    selectedId = newId;
+    
+                bars.classed("expanded", false)
+                    .transition()
+                    .style("width", width + "px")
+                    .select("p").style("display", "none");
+    
+                bars.filter(d => d.id === selectedId)
+                    .classed("expanded", true)
+                    .transition()
+                    .style("width", expandedWidth + "px")
+                    .select("p").style("display", "block");
+    
+                // Adjust left position of each bar based on the new selection
+                bars.style("left", (d, i) => {
+                    const index = data.findIndex(bar => bar.id === selectedId);
+                    if (i < index) {
+                        return `${i * (width + gap)}px`;
+                    } else if (i === index) {
+                        return `${i * (width + gap)}px`;
+                    } else {
+                        return `${i * (width + gap) + (expandedWidth - width)}px`;
+                    }
+                });
+            
+            updateCommunityOverlays(); // 更新社区覆盖层的位置和宽度
+            }
+            // Initially select the first bar
+            selectBar(selectedId);
+            // Bar click event
+            bars.on("click", function(_, d) {
+                selectBar(d.id);
+            });
+            // Keyboard navigation
+            d3.select(window).on("keydown", function(event) {
+                const index = data.findIndex(bar => bar.id === selectedId);
+                if (event.key === "ArrowRight" && index < data.length - 1) {
+                    selectBar(data[index + 1].id);
+                } else if (event.key === "ArrowLeft" && index > 0) {
+                    selectBar(data[index - 1].id);
+                }
+            });
+    updateBarsPositionAndSize(); 
+});
+
+
+document.addEventListener('DOMContentLoaded', (event) => {
+    const searchBar = document.getElementById("searchBar");
+    const searchButton = document.getElementById("searchButton");
+
+    // 加载数据并初始化视图
+    d3.json("data_final.json").then(function(loadedData) {
+        const bars = d3.select("#barcontainer").selectAll(".bar")
+            .data(loadedData)
+            .enter().append("div")
+            .attr("class", "bar show") // 默认所有元素都是显示的
+            // ...添加其他元素属性和样式，如文本、图片等...
+    });
+
+    // 封装搜索逻辑成一个函数
+    function performSearch() {
+        const searchText = searchBar.value.toLowerCase();
+
+        d3.select("#barcontainer").selectAll(".bar")
+            .classed("show", function(d) {
+                const matchText = d.e_text.toLowerCase().includes(searchText) || d.w_text.toLowerCase().includes(searchText);
+                return matchText;
+            })
+            .classed("hide", function(d) {
+                const matchText = d.e_text.toLowerCase().includes(searchText) || d.w_text.toLowerCase().includes(searchText);
+                return !matchText;
+            });
+    }
+
+    // 绑定点击事件到搜索按钮
+    searchButton.addEventListener("click", performSearch);
+});
+
+
+
+document.addEventListener('DOMContentLoaded', (event) => {
+    const languageDropdown = document.getElementById("languageDropdown");
+
+    function filterByLanguage() {
+    const selectedLanguage = languageDropdown.value;
+
+    d3.select("#barcontainer").selectAll(".bar")
+        .classed("show", function(d) {
+            // 确保 language_full 有值
+            const hasLanguage = d.language_full && d.language_full.trim().length > 0;
+            
+            if (selectedLanguage === "All") {
+                // 如果选中"All Languages"，显示所有元素
+                return true;
+            } else if (selectedLanguage === "Non-English") {
+                // 如果选中"Non-English"，则显示有值且不包含"English"的元素
+                // 同时检查 language_full 是否有值
+                return hasLanguage && !d.language_full.toLowerCase().includes("english");
+            } else {
+                // 对于其他具体的语言选项，检查"language_full"字段是否有值且包含选中的语言
+                return hasLanguage && d.language_full.toLowerCase().includes(selectedLanguage.toLowerCase());
+            }
+        })
+        .classed("hide", function(d) {
+            const hasLanguage = d.language_full && d.language_full.trim().length > 0;
+            
+            if (selectedLanguage === "All") {
+                return false;
+            } else if (selectedLanguage === "Non-English") {
+                // 如果没有值或包含"English"，则隐藏
+                return !hasLanguage || d.language_full.toLowerCase().includes("english");
+            } else {
+                return !hasLanguage || !d.language_full.toLowerCase().includes(selectedLanguage.toLowerCase());
+            }
+        });
+}
+    languageDropdown.addEventListener("change", filterByLanguage);
+});
+
+
+
+document.addEventListener('DOMContentLoaded', (event) => {
+    const categoryDropdown = document.getElementById("categoryDropdown");
+
+
+    // 封装筛选逻辑成一个函数
+    function filterByCategory() {
+        const selectedCategory = categoryDropdown.value.toLowerCase(); 
+
+        d3.select("#barcontainer").selectAll(".bar")
+            .classed("show", function(d) {
+                if (selectedCategory === "all categories") return true; // 如果选中“All Categories”，显示所有元素
+                // 使用 includes() 检查 category 字段是否包含选中的分类
+                return d.category.includes(selectedCategory);
+            })
+            .classed("hide", function(d) {
+                if (selectedCategory === "all categories") return false;
+                return !d.category.includes(selectedCategory);
+            });
+    }
+
+    // 绑定变化事件到分类下拉菜单
+    categoryDropdown.addEventListener("change", filterByCategory);
+});
+
+
+
+///////////////// 在窗口上监听鼠标滚轮事件
+window.addEventListener('wheel', function(event) {
+    if(event.deltaY < 0) {
+        currentScale *= 1.1; // 向上滚动，放大
+    } else {
+        currentScale /= 1.1; // 向下滚动，缩小
+    }
+
+    // 限制缩放级别
+    currentScale = Math.max(Math.min(currentScale, 1), 0.6);
+
+    // 更新 bars 的宽度和间隙
+    updateBarsPositionAndSize();
+}, { passive: false });
+
+function updateBarsPositionAndSize() {
+    const newWidth = baseWidth * currentScale; // 计算新宽度
+    const newGap = baseGap * currentScale; // 计算新间隙
+
+    d3.select("#barcontainer").selectAll(".bar")
+        .style("width", newWidth + "px")
+        .style("left", function(d, i) {
+            return `${i * (newWidth + newGap)}px`;
+        });
+    updateCommunityOverlays(); // 更新社区方块的位置和宽度
+}
+///////////////// 在窗口上监听鼠标滚轮事件
+
+
+
+
+////// 根据 community 对 bars 进行分组
+const communities = d3.group(data, d => d.community);
+
+communities.forEach((bars, communityName) => {
+const firstBar = bars[0];
+const lastBar = bars[bars.length - 1];
+
+// 计算 community 覆盖层的位置和宽度
+const communityPosition = parseFloat(d3.select(`.bar[data-id="${firstBar.id}"]`).style("left"));
+const lastBarPosition = parseFloat(d3.select(`.bar[data-id="${lastBar.id}"]`).style("left"));
+const communityWidth = (lastBarPosition - communityPosition) + (width * currentScale);
+
+// 在 barcontainer 中为这个 community 创建一个长方形覆盖层
+d3.select("#barcontainer").append("div")
+    .attr("class", "community")
+    .style("left", `${communityPosition}px`)
+    .style("width", `${communityWidth}px`)
+    .style("top", "0px") 
+    .style("height", "20px") 
+    .style("border", "2px solid white")
+    .text(communityName) 
+    .on("click", function() {
+        window.scrollTo({
+            top: document.querySelector(`.bar[data-id="${firstBar.id}"]`).offsetTop,
+            behavior: 'smooth'
+        });
+    });
+    });
+
+
+function updateCommunityOverlays() {
+    // 从全局变量获取 data
+    const communities = d3.group(data, d => d.community);
+    communities.forEach((bars, communityName) => {
+        const firstBar = bars[0];
+        const lastBar = bars[bars.length - 1];
+        
+        // 确保这里使用了更新后的 bar 位置和宽度
+        const firstBarDiv = d3.select(`.bar[data-id="${firstBar.id}"]`);
+        const lastBarDiv = d3.select(`.bar[data-id="${lastBar.id}"]`);
+
+        // 使用 parseFloat 确保从样式中获取的值被正确解析为数字
+        const firstBarLeft = parseFloat(firstBarDiv.style("left"));
+        const lastBarRight = parseFloat(lastBarDiv.style("left")) + parseFloat(lastBarDiv.style("width"));
+
+        const communityWidth = lastBarRight - firstBarLeft;
+
+        // 查找或创建社区方块
+        let communityDiv = d3.select(`.community[data-community="${communityName}"]`);
+        if (communityDiv.empty()) {
+            communityDiv = d3.select("#barcontainer").append("div")
+                .attr("class", "community")
+                .attr("data-community", communityName);
+        }
+
+        communityDiv.style("left", `${firstBarLeft}px`)
+            .style("width", `${communityWidth}px`)
+            .text(communityName); 
+    });
+}
+
+
+
+
+    </script>
+</body>
+</html>

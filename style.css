@@ -1,0 +1,159 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #000000;
+    color: white;
+    overflow: auto; 
+    overflow-y: hidden;
+}
+
+.menu {
+    margin:8px;
+    display: flex;
+    position: fixed;
+    justify-content: space-between;
+    width: 100%;
+    align-items:center;
+}
+
+h1 {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 32px;
+    display: inline-block;
+    margin-left: 5px;
+}
+
+h1 a {
+    text-decoration: none;
+    color: white;
+}
+
+#searchBar {
+    height: 22px;
+    width: 120px;
+    font-size: 14px; 
+    margin: 5px;
+}
+
+#searchButton {
+    height: 22px; 
+    font-size: 14px; 
+    margin-left: 4px;
+    padding: 2px;
+}
+
+#languageDropdown, #categoryDropdown{
+    height: 24px; 
+    width: 120px;
+    margin: 5px;
+    font-size: 14px; 
+}
+
+#leftmenu {
+    display: flex;
+    align-items: center;
+}
+
+#rightmenu {
+    margin-right: 20px;
+}
+
+#rightmenu a {
+    text-decoration: none;
+    color: white;
+    font-size: 18px;
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 10px;
+}
+
+#rightmenu span {
+    display: inline-block; 
+    width: 5.18px;
+}
+
+.bar {
+    background-color: rgb(0, 0, 0);
+    position: absolute;
+    transition: all 0.5s ease; 
+    overflow: hidden;
+}
+
+.bar img {
+    width: 240px; 
+    display: block;
+}
+
+.bar p {
+    text-align: left;
+    font-family: Arial, Helvetica, sans-serif;
+    padding:0px;
+    display: none; 
+}
+
+.expanded p {
+    display: block; 
+}
+
+.text-container {
+    height: 50px; 
+    overflow: hidden; 
+    color: white; 
+    font-size: 10px; 
+    text-align:left; 
+    margin: 4px 0;
+}
+
+.titletext{
+    height: 10px; 
+    font-size: 11px; 
+    font-weight: 600;
+    padding:0px;
+} 
+
+.titletext p{
+    color: rgb(135, 135, 135);
+    padding:0px;
+    padding-bottom: 1px;
+}
+
+#barcontainer{
+    transform-origin: left top;
+    position: absolute;
+    top:42px;
+    width: 100%;
+}
+
+.bar, .community {
+    position: absolute;
+    top: 0; 
+    overflow:hidden;
+}
+
+.community {
+    height: 30px; 
+    background-color: #3f3f3f; 
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10px;
+    border-left:1.5px solid #ffffff;
+    border-radius: 2px;
+}
+
+.legend img{
+    width: 480px;
+    height: auto;
+    position: fixed;
+    right: 10px;
+    bottom: 10px;
+    z-index: 20;
+}
+
+.show {
+    display: block !important; 
+}
+
+.hide {
+    display: none !important;
+}
