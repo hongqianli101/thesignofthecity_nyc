@@ -102,9 +102,52 @@
             font-size: 10px;
             font-family: Arial, sans-serif;
         }
+
+        /* Loading 页面样式 */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000000;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease-out;
+        }
+        #loading-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+        #loading-screen .loading-text {
+            color: #888888;
+            font-family: Arial, sans-serif;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        #loading-screen .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #333;
+            border-top-color: #888888;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
+<!-- Loading 页面 -->
+<div id="loading-screen">
+    <div class="loading-text">Loading...</div>
+    <div class="loading-spinner"></div>
+</div>
+
 <div class="menu">
     <div id="leftmenu">
         <h1><a href="application.html">The Sign of the City</a></h1>
@@ -1100,8 +1143,49 @@ document.addEventListener('DOMContentLoaded', () => {
     d3.json("data_final.json").then(function(data) {
         controller.loadData(data);
         setupFilters();
+
+        // 等待所有图片加载完成后隐藏 loading 页面
+        const images = document.querySelectorAll('#barcontainer img');
+        let loadedCount = 0;
+        const totalImages = images.length;
+
+        function checkAllLoaded() {
+            loadedCount++;
+            if (loadedCount >= totalImages) {
+                hideLoadingScreen();
+            }
+        }
+
+        function hideLoadingScreen() {
+            const loadingScreen = document.getElementById('loading-screen');
+            loadingScreen.classList.add('fade-out');
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+            }, 500);
+        }
+
+        if (totalImages === 0) {
+            hideLoadingScreen();
+        } else {
+            images.forEach(img => {
+                if (img.complete) {
+                    checkAllLoaded();
+                } else {
+                    img.addEventListener('load', checkAllLoaded);
+                    img.addEventListener('error', checkAllLoaded);
+                }
+            });
+        }
     }).catch(function(error) {
         console.error("Error loading data:", error);
+        // 出错时也隐藏 loading
+        const loadingScreen = document.getElementById('loading-screen');
+        if (loadingScreen) {
+            loadingScreen.classList.add('fade-out');
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+            }, 500);
+        }
     });
 });
 </script>
