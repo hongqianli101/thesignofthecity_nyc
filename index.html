@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Sign of the City</title>
+    <link rel="icon" type="image/png" href="images/do not enter sign.png">
     <style>
 * {
     margin: 0;
@@ -17,9 +18,10 @@
     line-height: 1.6;
     margin: 0;
     padding: 0;
+    padding-top: 50px;
     font-family: Helvetica, sans-serif;
     background-color: #000000;
-    position: relative; 
+    position: relative;
 }
 
         #backgroundimagesec {
@@ -131,12 +133,66 @@
             background-color: #515151;
         }
 
+        .menu {
+            margin: 0;
+            display: flex;
+            position: fixed;
+            justify-content: space-between;
+            width: 100%;
+            align-items: center;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            background-color: #000000;
+            padding: 5px 8px;
+        }
+        .menu h1 {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 32px;
+            display: inline-block;
+            margin-left: 5px;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+        .menu h1 a {
+            text-decoration: none;
+            color: white;
+        }
+        #rightmenu {
+            margin-right: 20px;
+        }
+        #rightmenu a {
+            text-decoration: none;
+            color: white;
+            font-size: 18px;
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 10px;
+        }
+        #rightmenu span {
+            display: inline-block;
+            width: 5.18px;
+            color: white;
+        }
+
     </style>
 </head>
 
 <body>
-    <section id="backgroundimagesec">
-    </section>
+<div class="menu">
+    <div id="leftmenu">
+        <h1><a href="application.html">The Sign of the City</a></h1>
+    </div>
+    <div id="rightmenu">
+        <a href="index.html">About</a>
+        <span>‧</span>
+        <a href="sign_category.html">Sign Category</a>
+        <span>‧</span>
+        <a href="sign_language.html">Sign Language</a>
+        <span>‧</span>
+        <a href="sign_content.html">Sign Content</a>
+    </div>
+</div>
+
 
     <!-- <section id="begin">
         <h1>The Sign of the City</h1>

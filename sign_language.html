@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Sign Language</title>
+    <link rel="icon" type="image/png" href="images/do not enter sign.png">
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <style>
         *{
@@ -19,13 +20,31 @@
         .checkboxes label {
             margin-right: 10px;
         }
-        svg {
+        #checkboxes {
+            margin-bottom: 20px;
+        }
+        .chart-container {
+            display: inline-block;
             margin: 5px;
-            height: 300px;
+            margin-bottom: 15px;
+            width: 120px;
+            text-align: center;
+        }
+        .chart-title {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 10px;
+            word-wrap: break-word;
+            margin-top: 5px;
+            height: 30px;
+            overflow: hidden;
+        }
+        svg {
+            display: block;
+            height: 120px;
         }
         text {
             fill: white;
-            font-size: 14px;
+            font-size: 12px;
             text-anchor: middle;
         }
         h1 {
@@ -60,8 +79,59 @@
             display: inline-flex;
             flex-direction: column;
             align-items: center;
-            margin: 10px; 
-            font-size: 14px;
+            vertical-align: bottom;
+            margin: 10px;
+            font-size: 12px;
+        }
+        .label-container > div {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .label-container input[type="checkbox"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border: 1px solid white;
+            border-radius: 2px;
+            background-color: transparent;
+            cursor: pointer;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .label-container input[type="checkbox"]:checked {
+            background-color: var(--checkbox-color);
+        }
+        .label-container input[type="checkbox"]:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 10px;
+        }
+        .btn-container {
+            display: inline-flex;
+            flex-direction: row;
+            align-items: flex-end;
+            vertical-align: bottom;
+            margin: 10px;
+            font-size: 12px;
+            gap: 10px;
+        }
+        .btn-container button {
+            background-color: transparent;
+            color: white;
+            border: 1px solid white;
+            border-radius: 2px;
+            padding: 2px 8px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .btn-container button:hover {
+            background-color: #333;
         }
 
     </style>
@@ -117,7 +187,7 @@ d3.csv(csvFilePath).then(function(data) {
             label.append("img")
                 .attr("src", imagePath)
                 .attr("alt", `${language} logo`)
-                .style("height", "30px")
+                .style("height", "20px")
                 .style("display", "block");
 
             const inputContainer = label.append("div");  // 为复选框和文字创建一个新的 div 容器
@@ -126,12 +196,30 @@ d3.csv(csvFilePath).then(function(data) {
                 .attr("type", "checkbox")
                 .attr("value", language)
                 .attr("checked", true)
+                .style("--checkbox-color", languageColors[language])
                 .on("change", () => drawCharts(expandedData, languageColors));
 
             inputContainer.append("span")
                 .text(language);
         });
 
+        // 添加 Select All 和 Deselect All 按钮
+        const btnContainer = checkboxesDiv.append("div")
+            .attr("class", "btn-container");
+
+        btnContainer.append("button")
+            .text("Select All")
+            .on("click", () => {
+                d3.selectAll("#checkboxes input[type=checkbox]").property("checked", true);
+                drawCharts(expandedData, languageColors);
+            });
+
+        btnContainer.append("button")
+            .text("Deselect All")
+            .on("click", () => {
+                d3.selectAll("#checkboxes input[type=checkbox]").property("checked", false);
+                drawCharts(expandedData, languageColors);
+            });
 
     drawCharts(expandedData, languageColors);
 });
@@ -143,8 +231,8 @@ function drawCharts(expandedData, languageColors) {
         selectedLanguages.push(this.value);
     });
 
-    // 清除旧的SVG
-    d3.selectAll("svg").remove();
+    // 清除旧的图表容器
+    d3.selectAll(".chart-container").remove();
 
     // 使用预定义的社区列表来保证所有社区都会被渲染
     const predefinedCommunities = [
@@ -207,18 +295,19 @@ function drawCharts(expandedData, languageColors) {
             stack.push({ language, y0, y1: y0 += count });
         });
 
-        const svgHeight = 300;
-        const svgWidth = 200;
-        let svg = d3.select('body').append('svg')
+        const svgHeight = 120;
+        const svgWidth = 120;
+
+        // 创建容器
+        let container = d3.select('body').append('div')
+            .attr('class', 'chart-container');
+
+        // 添加 SVG
+        let svg = container.append('svg')
             .attr('width', svgWidth)
             .attr('height', svgHeight)
             .style('background-color', 'black')
             .append('g');
-
-        svg.append('text')
-            .attr('x', svgWidth / 2)
-            .attr('y', 20)
-            .text(communityName);
 
         let rects = svg.selectAll('rect')
             .data(stack, d => d.language);
@@ -243,6 +332,11 @@ function drawCharts(expandedData, languageColors) {
             .attr('y', svgHeight)
             .attr('height', 0)
             .remove(); // 在过渡结束时删除元素
+
+        // 添加标题（在 SVG 下方）
+        container.append('div')
+            .attr('class', 'chart-title')
+            .text(communityName);
     });
 }
 </script>
