@@ -21,7 +21,9 @@
             margin-right: 10px;
         }
         #checkboxes {
+            margin-top: 20px;
             margin-bottom: 20px;
+            text-align: center;
         }
         .chart-container {
             display: inline-block;
@@ -37,10 +39,13 @@
             margin-top: 5px;
             height: 30px;
             overflow: hidden;
+            text-align: left;
+            margin-left: 4px;
         }
-        svg {
+        .chart-container svg {
             display: block;
             height: 120px;
+            margin-left: 4px;
         }
         text {
             fill: white;
@@ -78,10 +83,14 @@
         .label-container {
             display: inline-flex;
             flex-direction: column;
-            align-items: center;
+            align-items: flex-start;
             vertical-align: bottom;
-            margin: 10px;
-            font-size: 12px;
+            margin: 5px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        .label-container img {
+            margin-left: 4px;
         }
         .label-container > div {
             display: flex;
@@ -104,36 +113,39 @@
             background-color: var(--checkbox-color);
         }
         .label-container input[type="checkbox"]:checked::after {
-            content: '✓';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-size: 10px;
+            content: '';
         }
         .btn-container {
             display: inline-flex;
             flex-direction: row;
             align-items: flex-end;
             vertical-align: bottom;
-            margin: 10px;
-            font-size: 12px;
+            margin: 5px;
+            font-size: 10px;
             gap: 10px;
         }
         .btn-container button {
             background-color: transparent;
             color: white;
-            border: 1px solid white;
+            border: 0.8px solid white;
             border-radius: 2px;
             padding: 2px 8px;
-            font-size: 12px;
+            font-size: 10px;
+            font-weight: bold;
             cursor: pointer;
         }
         .btn-container button:hover {
             background-color: #333;
         }
-
+        .btn-item {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .btn-item img {
+            margin-left: 4px;
+            margin-bottom: 1px;
+        }
     </style>
 </head>
 <body>
@@ -200,22 +212,36 @@ d3.csv(csvFilePath).then(function(data) {
                 .on("change", () => drawCharts(expandedData, languageColors));
 
             inputContainer.append("span")
-                .text(language);
+                .text(language.toUpperCase());
         });
 
         // 添加 Select All 和 Deselect All 按钮
         const btnContainer = checkboxesDiv.append("div")
             .attr("class", "btn-container");
 
-        btnContainer.append("button")
-            .text("Select All")
+        const selectAllContainer = btnContainer.append("div")
+            .attr("class", "btn-item");
+        selectAllContainer.append("img")
+            .attr("src", "images/select.png")
+            .attr("alt", "select all")
+            .style("height", "20px")
+            .style("display", "block");
+        selectAllContainer.append("button")
+            .text("SELECT ALL")
             .on("click", () => {
                 d3.selectAll("#checkboxes input[type=checkbox]").property("checked", true);
                 drawCharts(expandedData, languageColors);
             });
 
-        btnContainer.append("button")
-            .text("Deselect All")
+        const deselectAllContainer = btnContainer.append("div")
+            .attr("class", "btn-item");
+        deselectAllContainer.append("img")
+            .attr("src", "images/unselect.png")
+            .attr("alt", "deselect all")
+            .style("height", "20px")
+            .style("display", "block");
+        deselectAllContainer.append("button")
+            .text("DESELECT ALL")
             .on("click", () => {
                 d3.selectAll("#checkboxes input[type=checkbox]").property("checked", false);
                 drawCharts(expandedData, languageColors);

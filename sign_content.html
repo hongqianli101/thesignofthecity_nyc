@@ -20,6 +20,7 @@
             display: flex;
             flex-wrap: wrap;
             margin-top: 20px;
+            justify-content: flex-start;
         }
         .community {
             display: flex;
@@ -35,6 +36,8 @@
             margin-top: 5px;
             height: 30px;
             overflow: hidden;
+            text-align: center;
+            width: 100%;
         }
         .word-container {
             width: 120px;
@@ -91,6 +94,9 @@
             color: white;
             font-size: 12px;
         }
+        #radio-buttons {
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -108,25 +114,27 @@
         <a href="sign_content.html">Sign Content</a>
     </div>
     </div>
-    <div class="label-container">
-        <img src="images/1.png" style="height: 20px;">
-        <label><input type="radio" name="word-set" value="1" checked>Top 1 Word</label>
-    </div>
-    <div class="label-container">
-        <img src="images/2.png" style="height: 20px;">
-        <label><input type="radio" name="word-set" value="2">Top 2 Word</label>
-    </div>
-    <div class="label-container">
-        <img src="images/3.png" style="height: 20px;">
-        <label><input type="radio" name="word-set" value="3">Top 3 Word</label>
-    </div>
-    <div class="label-container">
-        <img src="images/4.png" style="height: 20px;">
-        <label><input type="radio" name="word-set" value="4">Top 4 Word</label>
-    </div>
-    <div class="label-container">
-        <img src="images/5.png" style="height: 20px;">
-        <label><input type="radio" name="word-set" value="5">Top 5 Word</label>
+    <div id="radio-buttons">
+        <div class="label-container">
+            <img src="images/1.png" style="height: 20px;">
+            <label><input type="radio" name="word-set" value="1" checked>Top 1 Word</label>
+        </div>
+        <div class="label-container">
+            <img src="images/2.png" style="height: 20px;">
+            <label><input type="radio" name="word-set" value="2">Top 2 Word</label>
+        </div>
+        <div class="label-container">
+            <img src="images/3.png" style="height: 20px;">
+            <label><input type="radio" name="word-set" value="3">Top 3 Word</label>
+        </div>
+        <div class="label-container">
+            <img src="images/4.png" style="height: 20px;">
+            <label><input type="radio" name="word-set" value="4">Top 4 Word</label>
+        </div>
+        <div class="label-container">
+            <img src="images/5.png" style="height: 20px;">
+            <label><input type="radio" name="word-set" value="5">Top 5 Word</label>
+        </div>
     </div>
     <div class="container" id="container"></div>
 
