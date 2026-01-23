@@ -221,8 +221,8 @@ class InteractionController {
         // 基础尺寸参数
         this.baseWidth = 10;           // 基础宽度
         this.baseGap = 4;              // 基础间距（未使用，保留兼容）
-        this.minGap = 1.8;             // 最小间距 (px)
-        this.maxGap = 6;               // 最大间距 (px)
+        this.minGap = 1;               // 最小间距 (px)
+        this.maxGap = 4;               // 最大间距 (px)
         this.expandedWidth = 240;      // 展开宽度（固定像素值）
 
         // 视图状态
@@ -373,28 +373,43 @@ class InteractionController {
             .attr("data-id", d => d.id)
             .attr("data-index", (d, i) => i)
             .style("top", "24px")
-            .style("height", "1000px");
+            .style("height", "770px");
 
         this.bars.each(function(d) {
             const selection = d3.select(this);
-            selection.append("img").attr("src", d.e_image_s);
-            const firstTextContainer = selection.append("div").attr("class", "text-container");
-            firstTextContainer.append("p").text(d.e_text);
-            selection.append("div").attr("class", "titletext").append("p").text('Category');
-            selection.append("img").attr("src", d.e_image_c);
-            selection.append("div").attr("class", "titletext").append("p").text('Language');
-            selection.append("img").attr("src", d.e_image_l);
-            selection.append("div").attr("class", "titletext").append("p").text('Meidan household income');
-            selection.append("img").attr("src", d.image_h);
-            selection.append("div").attr("class", "titletext").append("p").text('Race');
-            selection.append("img").attr("src", d.image_d);
-            selection.append("div").attr("class", "titletext").append("p").text('Language');
-            selection.append("img").attr("src", d.w_image_l);
-            selection.append("div").attr("class", "titletext").append("p").text('Category');
-            selection.append("img").attr("src", d.w_image_c);
-            const secondTextContainer = selection.append("div").attr("class", "text-container");
-            secondTextContainer.append("p").text(d.w_text);
-            selection.append("img").attr("src", d.w_image_s);
+
+            // 使用单张合并图片
+            selection.append("img")
+                .attr("src", d.merged_image)
+                .attr("class", "merged-img");
+
+            // e_text 显示在 e-svi 图片下方 (y: 240 位置)
+            const eTextContainer = selection.append("div")
+                .attr("class", "text-container e-text");
+            eTextContainer.append("p").text(d.e_text);
+
+            // Category 标签 (e-category 上方, y: 258)
+            selection.append("div").attr("class", "titletext label-e-category").append("p").text("Category");
+
+            // Language 标签 (e-language 上方, y: 298)
+            selection.append("div").attr("class", "titletext label-e-language").append("p").text("Language");
+
+            // Median household income 标签 (y: 338)
+            selection.append("div").attr("class", "titletext label-income").append("p").text("Median household income");
+
+            // Race 标签 (y: 378)
+            selection.append("div").attr("class", "titletext label-race").append("p").text("Race");
+
+            // Language 标签 (w-language 上方, y: 418)
+            selection.append("div").attr("class", "titletext label-w-language").append("p").text("Language");
+
+            // Category 标签 (w-category 上方, y: 458)
+            selection.append("div").attr("class", "titletext label-w-category").append("p").text("Category");
+
+            // w_text 显示在 w-svi 图片上方 (y: 510 位置)
+            const wTextContainer = selection.append("div")
+                .attr("class", "text-container w-text");
+            wTextContainer.append("p").text(d.w_text);
         });
 
         // 移除点击展开功能 - browse 模式下自动展开中心 bar
@@ -1140,8 +1155,12 @@ let controller = null;
 document.addEventListener('DOMContentLoaded', () => {
     controller = new InteractionController("#barcontainer");
 
-    d3.json("data_final.json").then(function(data) {
-        controller.loadData(data);
+    d3.json("data_final_filtered.json").then(function(data) {
+        // 随机选择一半的数据以提高性能
+        const shuffled = data.sort(() => Math.random() - 0.5);
+        const halfData = shuffled.slice(0, Math.floor(data.length / 2));
+
+        controller.loadData(halfData);
         setupFilters();
 
         // 等待所有图片加载完成后隐藏 loading 页面
