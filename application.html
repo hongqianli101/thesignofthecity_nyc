@@ -1156,9 +1156,8 @@ document.addEventListener('DOMContentLoaded', () => {
     controller = new InteractionController("#barcontainer");
 
     d3.json("data_final_filtered.json").then(function(data) {
-        // 随机选择一半的数据以提高性能
-        const shuffled = data.sort(() => Math.random() - 0.5);
-        const halfData = shuffled.slice(0, Math.floor(data.length / 2));
+        // 随机选择一半的数据以提高性能（保持原顺序）
+        const halfData = data.filter(() => Math.random() < 0.5);
 
         controller.loadData(halfData);
         setupFilters();
